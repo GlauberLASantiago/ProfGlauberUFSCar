@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login e Dados - Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            width: 100%;
+            max-width: 400px;
+        }
+        button { 
+            padding: 10px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            width: 100%;
+            margin-top: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        #login-btn { background-color: #4285F4; color: white; font-weight: bold; }
+        #logout-btn { background-color: #d9534f; color: white; }
+        #salvar-btn { background-color: #28a745; color: white; }
+        
+        #profile-section, #app-section { display: none; }
+        img { border-radius: 50%; width: 50px; height: 50px; vertical-align: middle; }
+        
+        .mensagem-item {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Meu App com Banco de Dados</h2>
+
+    <div id="login-section">
+        <p>Faça login para salvar dados</p>
+        <button id="login-btn" onclick="loginComGoogle()">Entrar com o Google</button>
+    </div>
+
+    <div id="profile-section">
+        <hr>
+        <p>
+            <img id="user-avatar" src="" alt="Avatar">
+            <strong id="user-name"></strong>
+        </p>
+        <button id="logout-btn" onclick="logout()">Sair da Conta</button>
+        <hr>
+    </div>
+
+    <div id="app-section">
+        <h3>Nova Mensagem</h3>
+        <input type="text" id="texto-mensagem" placeholder="Digite algo para salvar...">
+        <button id="salvar-btn" onclick="salvarDados()">Salvar no Supabase</button>
+        
+        <h3>Mensagens Salvas:</h3>
+        <div id="lista-mensagens">Carregando...</div>
+    </div>
+</div>
+
+<script>
+    // 1. INSIRA SUAS CHAVES AQUI
+    const SUPABASE_URL = 'SUA_URL_DO_SUPABASE_AQUI';
+    const SUPABASE_ANON_KEY = 'SUA_ANON_KEY_DO_SUPABASE_AQUI';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let usuarioAtual = null;
+
+    // --- FUNÇÕES DE AUTENTICAÇÃO ---
+    async function loginComGoogle() {
+        await supabase.auth.signInWithOAuth({ provider: 'google' });
+    }
+
+    async function logout() {
+        await supabase.auth.signOut();
+    }
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        const loginSection = document.getElementById('login-section');
+        const profileSection = document.getElementById('profile-section');
+        const appSection = document.getElementById('app-section');
+
+        if (session && session.user) {
+            usuarioAtual

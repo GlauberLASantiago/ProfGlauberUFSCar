@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login e Dados - Supabase</title>
+    <title>Login e Dados - Supabase (Modo Debug)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { 
@@ -12,7 +12,8 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
         .container { 
             background: white; 
@@ -46,12 +47,19 @@
         #profile-section, #app-section { display: none; }
         img { border-radius: 50%; width: 50px; height: 50px; vertical-align: middle; margin-right: 10px; }
         
-        .mensagem-item {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 14px;
+        /* CAIXA DE DEBUG */
+        #debug-box {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            box-sizing: border-box;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -79,49 +87,88 @@
         <h3>Nova Mensagem</h3>
         <input type="text" id="texto-mensagem" placeholder="Digite algo para salvar...">
         <button id="salvar-btn" onclick="salvarDados()">Salvar no Supabase</button>
-        
-        <h3>Mensagens Salvas:</h3>
-        <div id="lista-mensagens">Carregando...</div>
+        <div id="lista-mensagens" style="margin-top:15px;">Carregando...</div>
     </div>
 </div>
 
+<div id="debug-box">
+    <strong>RAIO-X DO SISTEMA:</strong><br>
+</div>
+
 <script>
+    // FUNÇÃO QUE ESCREVE NA TELA
+    function registrarAviso(mensagem) {
+        const debugBox = document.getElementById('debug-box');
+        debugBox.innerHTML += `> ${mensagem}<br>`;
+        console.log("DEBUG:", mensagem);
+    }
+
+    registrarAviso("1. Lendo o script HTML...");
+
     // 1. CHAVES DO SUPABASE
     const SUPABASE_URL = 'https://outafyuukzxqhqvnkjva.supabase.co';
-    // Cole abaixo a sua chave anon longa que começa com eyJ...
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dGFmeXV1a3p4cWhxdm5ranZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTI0NDgsImV4cCI6MjA5MTA2ODQ0OH0.N913EFYb6PYefFyn0kDYtx7L9jt-l3EBVA_G9l-eimM';
+    const SUPABASE_ANON_KEY = 'COLE_AQUI_SUA_CHAVE_ANON_LONGA_QUE_COMECA_COM_eyJ';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabase;
     let usuarioAtual = null;
+
+    try {
+        registrarAviso("2. Tentando conectar com o Supabase...");
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        registrarAviso("3. Conexão criada com sucesso!");
+    } catch (erro) {
+        registrarAviso("ERRO FATAL NA CONEXÃO: " + erro.message);
+    }
 
     // --- FUNÇÕES DE AUTENTICAÇÃO ---
     async function loginComGoogle() {
-        await supabase.auth.signInWithOAuth({ provider: 'google' });
+        registrarAviso("-> BOTÃO CLICADO: Iniciando loginComGoogle()...");
+        try {
+            const { data, error } = await supabase.auth.signInWithOAuth({ 
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + window.location.pathname
+                }
+            });
+            
+            if (error) {
+                registrarAviso("ERRO AO LOGAR: " + error.message);
+            } else {
+                registrarAviso("-> Redirecionando para a tela do Google...");
+            }
+        } catch (erro) {
+            registrarAviso("ERRO INESPERADO NO LOGIN: " + erro.message);
+        }
     }
 
     async function logout() {
+        registrarAviso("-> BOTÃO SAIR CLICADO");
         await supabase.auth.signOut();
     }
 
-    // Monitora se o usuário está logado ou não
+    // Monitora o usuário
+    registrarAviso("4. Ativando monitoramento de sessão...");
     supabase.auth.onAuthStateChange((event, session) => {
+        registrarAviso(`MUDANÇA DE ESTADO: Evento disparado -> [${event}]`);
+        
         const loginSection = document.getElementById('login-section');
         const profileSection = document.getElementById('profile-section');
         const appSection = document.getElementById('app-section');
 
         if (session && session.user) {
-            usuarioAtual = session.user; // Guarda os dados do usuário logado
+            registrarAviso("-> Usuário ENCONTRADO e logado!");
+            usuarioAtual = session.user;
             loginSection.style.display = 'none';
             profileSection.style.display = 'block';
             appSection.style.display = 'block';
 
-            // Preenche o nome e a foto vindos do Google
             const meta = session.user.user_metadata;
             document.getElementById('user-name').innerText = meta.full_name || 'Usuário';
             document.getElementById('user-avatar').src = meta.avatar_url || '';
             
-            carregarDados(); // Carrega as mensagens do banco
+            carregarDados();
         } else {
+            registrarAviso("-> Nenhum usuário logado no momento.");
             usuarioAtual = null;
             loginSection.style.display = 'block';
             profileSection.style.display = 'none';
@@ -130,59 +177,45 @@
     });
 
     // --- FUNÇÕES DE BANCO DE DADOS ---
-
-    // Função para INSERIR dados na tabela TESTE1_mensagens
     async function salvarDados() {
         const input = document.getElementById('texto-mensagem');
         const texto = input.value;
+        if (!texto) return alert('Digite algo!');
 
-        if (!texto) {
-            alert('Digite alguma coisa antes de salvar!');
-            return;
-        }
-
-        const { error } = await supabase
-            .from('TESTE1_mensagens')
-            .insert([
-                { user_id: usuarioAtual.id, texto: texto }
-            ]);
+        registrarAviso("-> Tentando salvar mensagem no banco...");
+        const { error } = await supabase.from('TESTE1_mensagens').insert([{ user_id: usuarioAtual.id, texto: texto }]);
 
         if (error) {
-            console.error('Erro ao salvar:', error);
-            alert('Erro ao salvar: ' + error.message);
+            registrarAviso("ERRO AO SALVAR: " + error.message);
         } else {
-            input.value = ''; // Limpa a caixa de texto
-            carregarDados();  // Recarrega a lista para mostrar a mensagem nova
+            registrarAviso("-> Mensagem salva com sucesso!");
+            input.value = '';
+            carregarDados();
         }
     }
 
-    // Função para LER dados da tabela TESTE1_mensagens
     async function carregarDados() {
+        registrarAviso("-> Puxando mensagens do banco...");
         const divLista = document.getElementById('lista-mensagens');
         divLista.innerHTML = 'Carregando...';
 
-        const { data, error } = await supabase
-            .from('TESTE1_mensagens')
-            .select('*')
-            .order('criado_em', { ascending: false });
+        const { data, error } = await supabase.from('TESTE1_mensagens').select('*').order('criado_em', { ascending: false });
 
         if (error) {
-            console.error('Erro ao buscar:', error);
+            registrarAviso("ERRO AO CARREGAR: " + error.message);
             divLista.innerHTML = 'Erro ao carregar dados.';
             return;
         }
 
+        registrarAviso(`-> ${data.length} mensagens carregadas.`);
         divLista.innerHTML = '';
-        if (data.length === 0) {
-            divLista.innerHTML = 'Nenhuma mensagem salva ainda.';
-        } else {
-            data.forEach(item => {
-                const divItem = document.createElement('div');
-                divItem.className = 'mensagem-item';
-                divItem.innerText = item.texto;
-                divLista.appendChild(divItem);
-            });
-        }
+        if (data.length === 0) divLista.innerHTML = 'Nenhuma mensagem.';
+        else data.forEach(item => {
+            const divItem = document.createElement('div');
+            divItem.className = 'mensagem-item';
+            divItem.innerText = item.texto;
+            divLista.appendChild(divItem);
+        });
     }
 </script>
 

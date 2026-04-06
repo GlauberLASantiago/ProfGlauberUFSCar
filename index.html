@@ -44,7 +44,7 @@
         #salvar-btn { background-color: #28a745; color: white; }
         
         #profile-section, #app-section { display: none; }
-        img { border-radius: 50%; width: 50px; height: 50px; vertical-align: middle; }
+        img { border-radius: 50%; width: 50px; height: 50px; vertical-align: middle; margin-right: 10px; }
         
         .mensagem-item {
             background: #e9ecef;
@@ -67,7 +67,7 @@
 
     <div id="profile-section">
         <hr>
-        <p>
+        <p style="display: flex; align-items: center;">
             <img id="user-avatar" src="" alt="Avatar">
             <strong id="user-name"></strong>
         </p>
@@ -86,8 +86,9 @@
 </div>
 
 <script>
-    // 1. INSIRA SUAS CHAVES AQUI
+    // 1. CHAVES DO SUPABASE
     const SUPABASE_URL = 'https://outafyuukzxqhqvnkjva.supabase.co';
+    // Cole abaixo a sua chave anon longa que começa com eyJ...
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dGFmeXV1a3p4cWhxdm5ranZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTI0NDgsImV4cCI6MjA5MTA2ODQ0OH0.N913EFYb6PYefFyn0kDYtx7L9jt-l3EBVA_G9l-eimM';
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -102,10 +103,88 @@
         await supabase.auth.signOut();
     }
 
+    // Monitora se o usuário está logado ou não
     supabase.auth.onAuthStateChange((event, session) => {
         const loginSection = document.getElementById('login-section');
         const profileSection = document.getElementById('profile-section');
         const appSection = document.getElementById('app-section');
 
         if (session && session.user) {
-            usuarioAtual
+            usuarioAtual = session.user; // Guarda os dados do usuário logado
+            loginSection.style.display = 'none';
+            profileSection.style.display = 'block';
+            appSection.style.display = 'block';
+
+            // Preenche o nome e a foto vindos do Google
+            const meta = session.user.user_metadata;
+            document.getElementById('user-name').innerText = meta.full_name || 'Usuário';
+            document.getElementById('user-avatar').src = meta.avatar_url || '';
+            
+            carregarDados(); // Carrega as mensagens do banco
+        } else {
+            usuarioAtual = null;
+            loginSection.style.display = 'block';
+            profileSection.style.display = 'none';
+            appSection.style.display = 'none';
+        }
+    });
+
+    // --- FUNÇÕES DE BANCO DE DADOS ---
+
+    // Função para INSERIR dados na tabela TESTE1_mensagens
+    async function salvarDados() {
+        const input = document.getElementById('texto-mensagem');
+        const texto = input.value;
+
+        if (!texto) {
+            alert('Digite alguma coisa antes de salvar!');
+            return;
+        }
+
+        const { error } = await supabase
+            .from('TESTE1_mensagens')
+            .insert([
+                { user_id: usuarioAtual.id, texto: texto }
+            ]);
+
+        if (error) {
+            console.error('Erro ao salvar:', error);
+            alert('Erro ao salvar: ' + error.message);
+        } else {
+            input.value = ''; // Limpa a caixa de texto
+            carregarDados();  // Recarrega a lista para mostrar a mensagem nova
+        }
+    }
+
+    // Função para LER dados da tabela TESTE1_mensagens
+    async function carregarDados() {
+        const divLista = document.getElementById('lista-mensagens');
+        divLista.innerHTML = 'Carregando...';
+
+        const { data, error } = await supabase
+            .from('TESTE1_mensagens')
+            .select('*')
+            .order('criado_em', { ascending: false });
+
+        if (error) {
+            console.error('Erro ao buscar:', error);
+            divLista.innerHTML = 'Erro ao carregar dados.';
+            return;
+        }
+
+        divLista.innerHTML = '';
+        if (data.length === 0) {
+            divLista.innerHTML = 'Nenhuma mensagem salva ainda.';
+        } else {
+            data.forEach(item => {
+                const divItem = document.createElement('div');
+                divItem.className = 'mensagem-item';
+                divItem.innerText = item.texto;
+                divLista.appendChild(divItem);
+            });
+        }
+    }
+</script>
+
+</body>
+</html>

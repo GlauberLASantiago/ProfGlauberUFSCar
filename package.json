@@ -1,0 +1,13 @@
+{
+  "name": "prof-glauber-image-generator",
+  "version": "1.0.0",
+  "description": "Gerador de imagens do nome Prof. Glauber Santiago — app multi-linguagem",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "serve": "npx http-server . -p 8080"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

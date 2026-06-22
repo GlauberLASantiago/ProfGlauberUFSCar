@@ -1,223 +1,155 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login e Dados - Supabase (Modo Debug)</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #f0f2f5; 
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container { 
-            background: white; 
-            padding: 2rem; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-            width: 100%;
-            max-width: 400px;
-        }
-        button { 
-            padding: 10px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            width: 100%;
-            margin-top: 10px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        #login-btn { background-color: #4285F4; color: white; font-weight: bold; }
-        #logout-btn { background-color: #d9534f; color: white; }
-        #salvar-btn { background-color: #28a745; color: white; }
-        
-        #profile-section, #app-section { display: none; }
-        img { border-radius: 50%; width: 50px; height: 50px; vertical-align: middle; margin-right: 10px; }
-        
-        /* CAIXA DE DEBUG */
-        #debug-box {
-            background-color: #1e1e1e;
-            color: #00ff00;
-            width: 100%;
-            max-width: 400px;
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 13px;
-            box-sizing: border-box;
-            word-wrap: break-word;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gerador de imagens do nome Prof. Glauber Santiago — UFSCar" />
+  <title>Prof. Glauber Santiago — Gerador de Imagens</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700&family=JetBrains+Mono&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- CSS (linguagem 2 & 3) -->
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/animations.css" />
 </head>
 <body>
 
-<div class="container">
-    <h2>Meu App com Banco de Dados</h2>
+<!-- ─── Cabeçalho ─────────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <h1>Gerador de Imagens · Prof. Glauber Santiago</h1>
+  <p>Universidade Federal de São Carlos — UFSCar</p>
+</header>
 
-    <div id="login-section">
-        <p>Faça login para salvar dados</p>
-        <button id="login-btn" onclick="loginComGoogle()">Entrar com o Google</button>
+<!-- ─── Layout principal ──────────────────────────────────────────────────── -->
+<main class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <!-- Painel de configuração -->
+    <div class="panel">
+      <h2>Configurações</h2>
+
+      <div class="form-group">
+        <label for="text-input">Texto principal</label>
+        <input
+          type="text"
+          id="text-input"
+          placeholder="Prof. Glauber Santiago"
+          maxlength="60"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="subtitle-input">Subtítulo</label>
+        <input
+          type="text"
+          id="subtitle-input"
+          placeholder="Universidade Federal de São Carlos"
+          maxlength="80"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="toggle-row">
+          <input type="checkbox" id="subtitle-toggle" checked />
+          Exibir subtítulo
+        </label>
+      </div>
+
+      <div class="btn-row" style="margin-top:0.5rem">
+        <button id="generate-btn" class="btn btn-primary">⟳ Gerar</button>
+        <button id="copy-btn"     class="btn btn-secondary">⎘ Copiar</button>
+      </div>
     </div>
 
-    <div id="profile-section">
-        <hr>
-        <p style="display: flex; align-items: center;">
-            <img id="user-avatar" src="" alt="Avatar">
-            <strong id="user-name"></strong>
-        </p>
-        <button id="logout-btn" onclick="logout()">Sair da Conta</button>
-        <hr>
+    <!-- Painel de estilos -->
+    <div class="panel">
+      <h2>Estilos</h2>
+      <div id="style-cards"></div>
     </div>
 
-    <div id="app-section">
-        <h3>Nova Mensagem</h3>
-        <input type="text" id="texto-mensagem" placeholder="Digite algo para salvar...">
-        <button id="salvar-btn" onclick="salvarDados()">Salvar no Supabase</button>
-        <div id="lista-mensagens" style="margin-top:15px;">Carregando...</div>
+    <!-- Download -->
+    <div class="panel">
+      <h2>Download</h2>
+      <div class="btn-row" style="flex-direction:column">
+        <button id="download-btn"     class="btn btn-secondary" style="width:100%">⬇ Estilo atual (PNG)</button>
+        <button id="download-all-btn" class="btn btn-gold"      style="width:100%">⬇ Todos os estilos</button>
+      </div>
     </div>
-</div>
 
-<div id="debug-box">
-    <strong>RAIO-X DO SISTEMA:</strong><br>
-</div>
+  </aside>
 
-<script>
-    // FUNÇÃO QUE ESCREVE NA TELA
-    function registrarAviso(mensagem) {
-        const debugBox = document.getElementById('debug-box');
-        debugBox.innerHTML += `> ${mensagem}<br>`;
-        console.log("DEBUG:", mensagem);
-    }
+  <!-- Conteúdo principal -->
+  <section class="main-content">
 
-    registrarAviso("1. Lendo o script HTML...");
+    <!-- Canvas principal -->
+    <div class="canvas-container">
+      <h2>Pré-visualização</h2>
+      <canvas id="main-canvas" width="700" height="280"></canvas>
+    </div>
 
-    // 1. CHAVES DO SUPABASE
-    const SUPABASE_URL = 'https://outafyuukzxqhqvnkjva.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dGFmeXV1a3p4cWhxdm5ranZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTI0NDgsImV4cCI6MjA5MTA2ODQ0OH0.N913EFYb6PYefFyn0kDYtx7L9jt-l3EBVA_G9l-eimM';
+    <!-- Galeria -->
+    <div class="gallery-section">
+      <h2>Galeria de Estilos</h2>
+      <div id="gallery"></div>
+    </div>
 
-    let supabase;
-    let usuarioAtual = null;
+    <!-- Sobre o projeto -->
+    <div class="about-section">
+      <h2>Prof. Glauber Santiago</h2>
+      <p>Docente da Universidade Federal de São Carlos (UFSCar).</p>
+      <p>Este gerador cria imagens artísticas do nome do professor em múltiplos estilos visuais.</p>
+      <p>O projeto utiliza <strong>6 linguagens de programação</strong> diferentes:</p>
 
+      <div class="tech-tags">
+        <span class="tech-tag">HTML5</span>
+        <span class="tech-tag">CSS3</span>
+        <span class="tech-tag">TypeScript</span>
+        <span class="tech-tag">JavaScript</span>
+        <span class="tech-tag">Python 3</span>
+        <span class="tech-tag">Bash</span>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ─── Rodapé ────────────────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <p>
+    Desenvolvido para a UFSCar · Código-fonte disponível no
+    <a href="https://github.com/GlauberLASantiago/ProfGlauberUFSCar" target="_blank" rel="noopener">GitHub</a>
+  </p>
+  <p style="margin-top:0.4rem">
+    Linguagens: HTML · CSS · TypeScript · JavaScript · Python · Bash
+  </p>
+</footer>
+
+<!-- ─── JavaScript: utilitários (linguagem 4) ────────────────────────────── -->
+<script type="module">
+  import { copyCanvasToClipboard, showToast } from "./utils/helpers.js";
+
+  // Botão "Copiar imagem"
+  document.getElementById("copy-btn").addEventListener("click", async () => {
+    const canvas = document.getElementById("main-canvas");
     try {
-        registrarAviso("2. Tentando conectar com o Supabase...");
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        registrarAviso("3. Conexão criada com sucesso!");
-    } catch (erro) {
-        registrarAviso("ERRO FATAL NA CONEXÃO: " + erro.message);
+      await copyCanvasToClipboard(canvas);
+      showToast("Imagem copiada para a área de transferência!", "success");
+    } catch {
+      showToast("Não foi possível copiar (verifique permissões do navegador).", "error");
     }
-
-    // --- FUNÇÕES DE AUTENTICAÇÃO ---
-    async function loginComGoogle() {
-        registrarAviso("-> BOTÃO CLICADO: Iniciando loginComGoogle()...");
-        try {
-            const { data, error } = await supabase.auth.signInWithOAuth({ 
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin + window.location.pathname
-                }
-            });
-            
-            if (error) {
-                registrarAviso("ERRO AO LOGAR: " + error.message);
-            } else {
-                registrarAviso("-> Redirecionando para a tela do Google...");
-            }
-        } catch (erro) {
-            registrarAviso("ERRO INESPERADO NO LOGIN: " + erro.message);
-        }
-    }
-
-    async function logout() {
-        registrarAviso("-> BOTÃO SAIR CLICADO");
-        await supabase.auth.signOut();
-    }
-
-    // Monitora o usuário
-    registrarAviso("4. Ativando monitoramento de sessão...");
-    supabase.auth.onAuthStateChange((event, session) => {
-        registrarAviso(`MUDANÇA DE ESTADO: Evento disparado -> [${event}]`);
-        
-        const loginSection = document.getElementById('login-section');
-        const profileSection = document.getElementById('profile-section');
-        const appSection = document.getElementById('app-section');
-
-        if (session && session.user) {
-            registrarAviso("-> Usuário ENCONTRADO e logado!");
-            usuarioAtual = session.user;
-            loginSection.style.display = 'none';
-            profileSection.style.display = 'block';
-            appSection.style.display = 'block';
-
-            const meta = session.user.user_metadata;
-            document.getElementById('user-name').innerText = meta.full_name || 'Usuário';
-            document.getElementById('user-avatar').src = meta.avatar_url || '';
-            
-            carregarDados();
-        } else {
-            registrarAviso("-> Nenhum usuário logado no momento.");
-            usuarioAtual = null;
-            loginSection.style.display = 'block';
-            profileSection.style.display = 'none';
-            appSection.style.display = 'none';
-        }
-    });
-
-    // --- FUNÇÕES DE BANCO DE DADOS ---
-    async function salvarDados() {
-        const input = document.getElementById('texto-mensagem');
-        const texto = input.value;
-        if (!texto) return alert('Digite algo!');
-
-        registrarAviso("-> Tentando salvar mensagem no banco...");
-        const { error } = await supabase.from('TESTE1_mensagens').insert([{ user_id: usuarioAtual.id, texto: texto }]);
-
-        if (error) {
-            registrarAviso("ERRO AO SALVAR: " + error.message);
-        } else {
-            registrarAviso("-> Mensagem salva com sucesso!");
-            input.value = '';
-            carregarDados();
-        }
-    }
-
-    async function carregarDados() {
-        registrarAviso("-> Puxando mensagens do banco...");
-        const divLista = document.getElementById('lista-mensagens');
-        divLista.innerHTML = 'Carregando...';
-
-        const { data, error } = await supabase.from('TESTE1_mensagens').select('*').order('criado_em', { ascending: false });
-
-        if (error) {
-            registrarAviso("ERRO AO CARREGAR: " + error.message);
-            divLista.innerHTML = 'Erro ao carregar dados.';
-            return;
-        }
-
-        registrarAviso(`-> ${data.length} mensagens carregadas.`);
-        divLista.innerHTML = '';
-        if (data.length === 0) divLista.innerHTML = 'Nenhuma mensagem.';
-        else data.forEach(item => {
-            const divItem = document.createElement('div');
-            divItem.className = 'mensagem-item';
-            divItem.innerText = item.texto;
-            divLista.appendChild(divItem);
-        });
-    }
+  });
 </script>
+
+<!-- ─── TypeScript compilado (linguagem 3) ───────────────────────────────── -->
+<script type="module" src="dist/app.js"></script>
 
 </body>
 </html>

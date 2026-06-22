@@ -149,7 +149,7 @@ export class ImageGenerator {
      */
     drawMainText(config, text, width, height) {
         this.ctx.save();
-        const fontSize = this.adaptFontSize(config.fontSize, text, width);
+        const fontSize = this.adaptFontSize(config.fontSize, text, width, config.fontFamily);
         this.ctx.font = `bold ${fontSize}px ${config.fontFamily}`;
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
@@ -184,13 +184,13 @@ export class ImageGenerator {
     /**
      * Adapta o tamanho da fonte para que o texto caiba na largura do canvas.
      */
-    adaptFontSize(baseFontSize, text, width) {
+    adaptFontSize(baseFontSize, text, width, fontFamily) {
         let fontSize = baseFontSize;
-        this.ctx.font = `bold ${fontSize}px Georgia`;
+        this.ctx.font = `bold ${fontSize}px ${fontFamily}`;
         while (this.ctx.measureText(text).width > width * 0.85 &&
             fontSize > 20) {
             fontSize -= 2;
-            this.ctx.font = `bold ${fontSize}px Georgia`;
+            this.ctx.font = `bold ${fontSize}px ${fontFamily}`;
         }
         return fontSize;
     }

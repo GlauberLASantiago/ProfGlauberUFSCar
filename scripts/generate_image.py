@@ -16,12 +16,12 @@ Uso:
 import argparse
 import os
 import math
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 try:
     from PIL import Image, ImageDraw, ImageFont, ImageFilter
     PIL_AVAILABLE = True
-    _AnyFont = ImageFont.FreeTypeFont | ImageFont.ImageFont
+    _AnyFont = Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
 except ImportError:
     PIL_AVAILABLE = False
     _AnyFont = None  # type: ignore[assignment]

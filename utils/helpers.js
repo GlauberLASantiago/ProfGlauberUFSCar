@@ -88,8 +88,9 @@ function linearize(c) {
 export function debounce(fn, delay) {
   let timer;
   return function (...args) {
+    const ctx = this;
     clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), delay);
+    timer = setTimeout(function () { fn.apply(ctx, args); }, delay);
   };
 }
 

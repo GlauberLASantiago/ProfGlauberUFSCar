@@ -1,0 +1,111 @@
+/* animations.css — Animações e transições para a aplicação */
+
+/* ─── Fade-in ao carregar ────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Pulse para destaque ────────────────────────────────────────────────── */
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(233,69,96,0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(233,69,96,0); }
+  100% { box-shadow: 0 0 0 0 rgba(233,69,96,0); }
+}
+
+/* ─── Shimmer (carregamento) ─────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ─── Brilho dourado giratório ───────────────────────────────────────────── */
+@keyframes goldenGlow {
+  0%   { text-shadow: 0 0 8px #ffd700, 0 0 20px #ffd700; }
+  50%  { text-shadow: 0 0 16px #ffa500, 0 0 40px #ffa500; }
+  100% { text-shadow: 0 0 8px #ffd700, 0 0 20px #ffd700; }
+}
+
+/* ─── Rotação suave ──────────────────────────────────────────────────────── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─── Floating para cards ────────────────────────────────────────────────── */
+@keyframes float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+/* ─── Aplicação das animações ────────────────────────────────────────────── */
+.site-header {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.sidebar {
+  animation: slideInLeft 0.5s ease 0.1s both;
+}
+
+.main-content {
+  animation: slideInRight 0.5s ease 0.15s both;
+}
+
+.gallery-card {
+  animation: scaleIn 0.4s ease both;
+}
+
+/* Aplica atraso em escada nos cards da galeria */
+.gallery-card:nth-child(1)  { animation-delay: 0.05s; }
+.gallery-card:nth-child(2)  { animation-delay: 0.10s; }
+.gallery-card:nth-child(3)  { animation-delay: 0.15s; }
+.gallery-card:nth-child(4)  { animation-delay: 0.20s; }
+.gallery-card:nth-child(5)  { animation-delay: 0.25s; }
+.gallery-card:nth-child(6)  { animation-delay: 0.30s; }
+
+/* Canvas principal aparece com destaque */
+.canvas-container {
+  animation: fadeIn 0.6s ease 0.2s both;
+}
+
+/* Pulse no botão primário ao hover */
+.btn-primary:hover:not(:disabled) {
+  animation: pulse 1.2s infinite;
+}
+
+/* Título com brilho dourado */
+.about-section h2 {
+  animation: goldenGlow 3s ease-in-out infinite;
+}
+
+/* Shimmer para skeleton loading (uso futuro) */
+.skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Floating aplicado ao canvas quando marcado */
+.canvas-container.floating #main-canvas {
+  animation: float 3s ease-in-out infinite;
+}

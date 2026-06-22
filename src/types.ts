@@ -1,0 +1,124 @@
+// types.ts — Definições de tipos TypeScript para o gerador de imagens
+
+export type ImageStyle =
+  | "classico"
+  | "neon"
+  | "aquarela"
+  | "dourado"
+  | "matriz"
+  | "pop-art";
+
+export interface StyleConfig {
+  name: string;
+  label: string;
+  backgroundColor: string | string[];
+  textColor: string | string[];
+  shadowColor: string;
+  shadowBlur: number;
+  fontFamily: string;
+  fontSize: number;
+  borderColor: string;
+  gradient: boolean;
+  glowEffect: boolean;
+}
+
+export interface GeneratorOptions {
+  text: string;
+  style: ImageStyle;
+  width: number;
+  height: number;
+  showSubtitle: boolean;
+  subtitle: string;
+}
+
+export interface CanvasDimensions {
+  width: number;
+  height: number;
+}
+
+export interface DownloadOptions {
+  filename: string;
+  format: "png" | "jpeg";
+  quality?: number;
+}
+
+export const STYLE_CONFIGS: Record<ImageStyle, StyleConfig> = {
+  classico: {
+    name: "classico",
+    label: "Clássico",
+    backgroundColor: "#1a1a2e",
+    textColor: "#e8d5b7",
+    shadowColor: "rgba(232,213,183,0.5)",
+    shadowBlur: 15,
+    fontFamily: "Georgia, serif",
+    fontSize: 54,
+    borderColor: "#e8d5b7",
+    gradient: false,
+    glowEffect: false,
+  },
+  neon: {
+    name: "neon",
+    label: "Neon",
+    backgroundColor: "#0a0a0a",
+    textColor: "#00ffff",
+    shadowColor: "#00ffff",
+    shadowBlur: 30,
+    fontFamily: "'Courier New', monospace",
+    fontSize: 52,
+    borderColor: "#ff00ff",
+    gradient: false,
+    glowEffect: true,
+  },
+  aquarela: {
+    name: "aquarela",
+    label: "Aquarela",
+    backgroundColor: ["#ffecd2", "#fcb69f"],
+    textColor: ["#2c3e50", "#8e44ad"],
+    shadowColor: "rgba(142,68,173,0.4)",
+    shadowBlur: 10,
+    fontFamily: "'Palatino Linotype', Palatino, serif",
+    fontSize: 50,
+    borderColor: "#8e44ad",
+    gradient: true,
+    glowEffect: false,
+  },
+  dourado: {
+    name: "dourado",
+    label: "Dourado",
+    backgroundColor: ["#1a1a2e", "#16213e"],
+    textColor: ["#FFD700", "#FFA500"],
+    shadowColor: "rgba(255,215,0,0.7)",
+    shadowBlur: 20,
+    fontFamily: "Times New Roman, serif",
+    fontSize: 56,
+    borderColor: "#FFD700",
+    gradient: true,
+    glowEffect: true,
+  },
+  matriz: {
+    name: "matriz",
+    label: "Matriz",
+    backgroundColor: "#000000",
+    textColor: "#00ff41",
+    shadowColor: "#00ff41",
+    shadowBlur: 25,
+    fontFamily: "'Courier New', monospace",
+    fontSize: 48,
+    borderColor: "#00ff41",
+    gradient: false,
+    glowEffect: true,
+  },
+  "pop-art": {
+    name: "pop-art",
+    label: "Pop Art",
+    backgroundColor: ["#ff6b6b", "#feca57"],
+    textColor: "#2d3436",
+    shadowColor: "#2d3436",
+    shadowBlur: 0,
+    fontFamily: "Impact, 'Arial Black', sans-serif",
+    fontSize: 58,
+    borderColor: "#2d3436",
+    gradient: true,
+    glowEffect: false,
+  },
+};
